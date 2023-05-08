@@ -22,6 +22,9 @@ class App extends Component {
       .then((response) => response.json())
       .then((users) => {
         this.setState({ robots: users });
+      })
+      .catch((error) => {
+        throw Error(error);
       });
   }
   render() {
@@ -32,15 +35,15 @@ class App extends Component {
     return !robots.length ? (
       <h1>Loading</h1>
     ) : (
-      <div className="tc">
-        <h1 className="f1">RoboFriends</h1>
-        <SearchBox onSearchChange={this.onSearchChange} />
-        <Scroll>
-          <ErrorBoundry>
+      <ErrorBoundry>
+        <div className="tc">
+          <h1 className="f1">RoboFriends</h1>
+          <SearchBox onSearchChange={this.onSearchChange} />
+          <Scroll>
             <CardList robots={filteredRobots} />
-          </ErrorBoundry>
-        </Scroll>
-      </div>
+          </Scroll>
+        </div>
+      </ErrorBoundry>
     );
   }
 }
