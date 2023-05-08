@@ -1,36 +1,50 @@
 import { useState, useEffect } from "react";
+import { connect } from "react-redux";
 import CardList from "../components/CardList";
 import SearchBox from "../components/SearchBox";
 import Scroll from "../components/Scroll";
 import ErrorBoundry from "./ErrorBoundry";
+import { setSearchField, requestRobots } from "../action";
 import "./App.css";
 
-function App() {
-  const [robots, setRobots] = useState([]);
-  const [searchfield, setSearchField] = useState("");
-  const [count, setCount] = useState(0);
-  const onSearchChange = (event) => {
-    setSearchField(event.target.value);
+const mapStateToState = (state) => {
+  return {
+    searchfield: state.searchRobots.searchfield,
+    robots: state.requestRobots.robots,
+    isPending: state.requestRobots.isPending,
+    error: state.requestRobots.error,
   };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    onSearchChange: (event) => dispatch(setSearchField(event.target.value)),
+    onRequestRobots: () => dispatch(requestRobots()),
+  };
+};
+
+function App({
+  searchfield,
+  onSearchChange,
+  onRequestRobots,
+  robots,
+  isPending,
+}) {
+  const [count, setCount] = useState(0);
 
   useEffect(() => {
-    fetch("https://jsonplaceholder.typicode.com/users")
-      .then((response) => response.json())
-      .then((users) => {
-        setRobots(users);
-      })
-      .catch((error) => {
-        throw Error(error);
-      });
-  }, []);
+    onRequestRobots();
+  }, [onRequestRobots]);
 
   useEffect(() => {
     console.log(count);
   }, [count]);
+
   const filteredRobots = robots.filter((robot) =>
     robot.name.toLowerCase().includes(searchfield)
   );
-  return !robots.length ? (
+
+  return isPending ? (
     <h1>Loading</h1>
   ) : (
     <ErrorBoundry>
@@ -45,4 +59,5 @@ function App() {
     </ErrorBoundry>
   );
 }
-export default App;
+// coonect is a HOC
+export default connect(mapStateToState, mapDispatchToProps)(App);
